@@ -2,11 +2,6 @@
 # vi: set ft=ruby :
 
 
-######################### 
-DBPASS = "123456789"
-DBUSER = "NODEGUY"
-
-
 Vagrant.configure(2) do |config|
   
   config.vm.box = "ubuntu/trusty64"
@@ -43,13 +38,28 @@ Vagrant.configure(2) do |config|
 
   # Shell provisioning setup
   config.vm.provision "shell", inline: <<-SHELL
-    apt-get update
-    apt-get install -y nginx > /dev/null
-    apt-get install -y build-essential openssl libssl-dev pkg-config > /dev/null
+    export DEBIAN_FRONTEND=noninteractive
+    debconf-set-selections <<< 'mysql-server-5.1 mysql-server/root_password password secretpw'
+    debconf-set-selections <<< 'mysql-server-5.1 mysql-server/root_password_again password secretpw'
     
-    debconf-set-selections <<< "mysql-server mysql-server/root_password password #{$DBPASS}"
-    debconf-set-selections <<< "mysql-server mysql-server/root_password_again password #{$DBPASS}"
+    # mongoDB stuff
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+    echo "deb http://repo.mongodb.org/apt/ubuntu "$(lsb_release -sc)"/mongodb-org/3.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.0.list
+    # nodeJS stuff
+    apt-get install -y -q curl
+    curl -sL https://deb.nodesource.com/setup | sudo bash -
     
-    apt-get install mysql-server > /dev/null
+    apt-get update > /dev/null
+    apt-get upgrade > /dev/null
+    apt-get install -y -q build-essential openssl libssl-dev pkg-config
+    
+    # add security config for mongo
+    apt-get install -y -q mongodb-org
+    apt-get install -y -q nginx
+    apt-get install -y -q nodejs
+    
+    # run this last it breaks stuff apparently
+    apt-get install -y -q mysql-server mysql-client
+    
   SHELL
 end
