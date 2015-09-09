@@ -21,7 +21,7 @@ Vagrant.configure(2) do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  # config.vm.synced_folder "../data", "/vagrant_data"
+  # config.vm.synced_folder "../../projects/pinnacle", "/srv/sites/pinnacle"
 
   ######################## EXTERNAL NETWORKING ###########################
 
@@ -46,8 +46,8 @@ Vagrant.configure(2) do |config|
     ############################
 
     #### mongoDB ####
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
-    echo "deb http://repo.mongodb.org/apt/ubuntu "$(lsb_release -sc)"/mongodb-org/3.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.0.list
+    # apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+    # echo "deb http://repo.mongodb.org/apt/ubuntu "$(lsb_release -sc)"/mongodb-org/3.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.0.list
 
     #### rethinkDB ####
     source /etc/lsb-release && echo "deb http://download.rethinkdb.com/apt $DISTRIB_CODENAME main" | sudo tee /etc/apt/sources.list.d/rethinkdb.list
@@ -63,7 +63,16 @@ Vagrant.configure(2) do |config|
 
     apt-get update > /dev/null
     apt-get upgrade > /dev/null
-    apt-get install -y -q build-essential openssl libssl-dev pkg-config git
+    apt-get install -y -q build-essential openssl \
+                          libssl-dev pkg-config \
+                          git apache2-utils
+
+    #### dev setup ####
+    apt-get remove -y vim  # get rid of vim-tiny
+    apt-get install -y -q ctags vim
+    git clone https://github.com/amix/vimrc.git /home/vagrant/.vim_runtime
+    sh /home/vagrant/.vim_runtime/install_awesome_vimrc.sh # may not work
+    sed -i -e 's/#force_color/force_color/g' /home/vagrant/.bashrc
 
     #### nginx ####
     apt-get install -y -q nginx
@@ -86,7 +95,8 @@ Vagrant.configure(2) do |config|
     service rethinkdb restart
 
     #### mongodb ####
-    #apt-get install -y -q mongodb-org
+    # apt-get install -y -q mongodb-org
+    ## config mongo ##
 
     #### mysql ####
     ## setup ##

@@ -21,3 +21,4 @@ Also the RethinkDB Admin page can be found at [192.168.1.88/rethink](http://192.
 - [ ] make provisioning script external for potential production uses
 - [ ] add security to the rethink admin pages
 - [ ] tons of other things I can't remember right now
+- [ ] remember to setup production env variables
